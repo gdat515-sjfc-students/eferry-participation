@@ -269,5 +269,7 @@ ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
   coord_flip()+
   theme_fivethirtyeight()
 
+# another useful option is the id. so you can have fill, doge or gitter - if all you had was the min, median and max, you coudl still plot, you could pass them in directly and you could create some fake data and plot that around there if you wanted ! 
+
 ```
 
