@@ -259,8 +259,15 @@ ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
 # west andersone themes, you can have plots in the different themes and colors etc. 
 
 
-
-
+gapminder %>% 
+ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
+  stat_summary(fun.ymin = min, 
+               fun.ymax = max, 
+               fun.y=median,
+               alpha=.9)+
+  geom_point()+
+  coord_flip()+
+  theme_fivethirtyeight()
 
 ```
 
