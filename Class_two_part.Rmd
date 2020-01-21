@@ -1,0 +1,266 @@
+---
+title: "Class_two"
+author: "Emily Ferry"
+date: "1/20/2020"
+output: 
+md_document:
+  variant: gfm
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+#install.packages("gapminder")
+library(gapminder)
+library(ggplot2)
+library(tidyverse)
+#install.packages("ggthemes")
+library(ggthemes)
+options(sypen=999)
+?gapminder#Excerpt of the Gapminder data on life expectancy, GDP per capita, and population by country.
+
+
+```
+### intro to GGPlot2
+
+## gramar of graphics 
+ 
+He's going to push his file to github for us to reference so we dont need to copy 
+
+*Start with a ggplot 
+*add data and arstedic mapping 
+*geometric objests
+*scales 
+*facet specs
+*statistical transormation 
+*coordinate system 
+
+
+#Lets get the data ready 
+
+```{r gapminder}
+
+data("gapminder")
+str(gapminder) #6 variables, 2 factors, year int, lifeexpectancey, gdp per cap, etc. 
+
+```
+
+
+```{r}
+#ggplot2::  #reference the package without lib. 
+ggplot(data=gapminder, mapping = aes(x = year, y = pop)) +
+  geom_point()                              #put in some points 
+
+
+ggplot()+
+  geom_point(data = gapminder, mapping = aes( x= year, y= pop)) # this is useful for layering two datasets, you can do with smaller subsets of the data for layers 
+
+ggplot()+
+  geom_point(data = gapminder, mapping = aes( x= year, y= pop, color= continent))
+
+ ggplot(data = gapminder, mapping = aes( x= year, y= pop, color= continent))+
+   geom_point()
+ 
+ 
+
+
+```
+
+
+#Aggregate by contients 
+```{r}
+
+gapminder %>%
+  group_by(year,continent) %>% 
+    summarise(pop= sum(pop)) %>% 
+   ggplot(data = ., mapping = aes( x= year, y= pop, color= continent))+
+   geom_point() # our scale here is way off, not very useful to show 
+# make a transformation to the Y - a log 
+
+gapminder %>%
+  group_by(year,continent) %>% 
+    summarise(pop= sum(pop)) %>% 
+   ggplot(data = ., mapping = aes( x= year, y= pop, color= continent))+
+   geom_point() +
+  scale_y_log10()  # now we can see oceian, but at the cost of other things 
+
+
+
+view(gapminder)
+summary(gapminder)
+
+```
+# looking at other variables - GDP per Cap 
+```{r}
+ggplot(data = gapminder, mapping = aes( x= year, y=gdpPercap, color = country))+
+  geom_point() +      #facet by countires - grip = two variabels, wrap = only one 
+  facet_wrap(~continent)
+  
+# this got a loter nutty - we want to filter by Asia 
+
+gapminder%>%
+  filter(continent == "Asia") %>% 
+ggplot(data = ., mapping = aes( x= year, y=gdpPercap, color = country))+
+  geom_point() +      #facet by countires - grip = two variabels, wrap = only one 
+  facet_wrap(~continent)
+
+
+```
+#try two numeric values
+
+```{r}
+ggplot(data = gapminder, aes(x=gdpPercap, y = lifeExp)) +
+  geom_point() # two numeric values - see some interesting realtionship kinda weird - well try the log 
+
+ggplot(data = gapminder, aes(x=gdpPercap, y = lifeExp)) +
+  geom_point() + 
+  scale_x_log10()  # this is alot easier to read - so an example of when you'd want to do it, check it out by contient 
+
+ggplot(data = gapminder, aes(x=gdpPercap, y = lifeExp, color = continent)) +
+  geom_point() + 
+  scale_x_log10() +  # this is better yet
+  stat_smooth() # add the smoother line in, default is the loess smoother, local regressions, we can change that if we want 
+
+ggplot(data = gapminder, aes(x=gdpPercap, y = lifeExp, color = continent)) +
+  geom_point() + 
+  scale_x_log10() +  # this is better yet
+  stat_smooth( method = lm) # life expetancy on the log of gdp per cap ( using a linear model)
+
+
+# you can make this graph even more confusing/ advanced 
+
+ggplot(data = gapminder, aes(x=gdpPercap, y = lifeExp, color = continent, size = pop)) +
+  geom_point() + 
+  scale_x_log10() +  # this is going to be bad - we increase point size by the population weight 
+  stat_smooth( method = lm)
+
+gapminder%>%
+  filter(continent == "Asia") %>% 
+ggplot(data = ., mapping = aes( x= year, y=gdpPercap, color = country))+
+  geom_point() +      #facet by countires - grip = two variabels, wrap = only one 
+  facet_wrap(~continent)
+```
+# changing mappong for pop 
+```{r}
+gapminder %>%
+  filter( continent== "Europe") %>%
+  group_by(country) %>% 
+  summarise(gdpPercap = mean (gdpPercap), 
+lifeExp = mean( lifeExp))%>%
+ggplot(data = . , aes(x=gdpPercap, y = lifeExp, shape = country)) +
+  geom_point() + 
+  scale_x_log10() + 
+  stat_smooth( method = lm)
+
+#Not really usefuly, but we can see that there are multiple shapes though 
+
+
+```
+# Back to square one 
+
+```{r}
+
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp, fill = continent)) +
+  geom_point() + 
+  scale_x_log10() +
+  stat_smooth( method = lm) # cool to see that colors 
+
+
+
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp, color = continent)) +
+  scale_x_log10() +
+  stat_smooth( method = lm) # to get ride of points omit the geom_point 
+
+# dashed lines, hard to tell though which is which, cause it kind of makes it up 
+
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp, linetype = continent)) +
+  geom_point(aes( color = continent))+   # you can add the color in the points 
+  scale_x_log10() +
+  stat_smooth( method = lm)
+
+#getting rid of the lines 
+
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp)) +
+  geom_point(aes( color = continent, alpha = pop))+  # looks mysterious, alpha can take a fixed value for the color or you can change he hue of each point  
+  scale_x_log10() +
+  stat_smooth( method = lm)
+
+
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp)) +
+  geom_point(aes( color = continent), alpha = .5) +  # if you move the alpha outside of the aes () then you can control the weight/ hue, alpah ranges from 0-1 
+  scale_x_log10() +
+  stat_smooth( method = lm, mapping = aes ( color = continent))
+
+```
+```{r}
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp)) +
+  geom_point( alpha = .4) + 
+  scale_x_log10() +
+  stat_smooth( method = lm) + 
+  facet_wrap(~continent) # added a facet, shows the relationships, and breaks the scatter plots out 
+
+
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp)) +
+  geom_point( alpha = .4) + 
+  scale_x_log10() +
+  stat_smooth( method = lm) + 
+  facet_wrap(~continent)+ 
+  xlab("GDP Per Capita")+ 
+  ylab ("Life Expectancy")+
+  ggtitle("Life Expectancy by GDP Per Capita", subtitle = "Faceted by Continet") # adding the titles, and the axisis 
+
+
+```
+# Getting Weird again 
+
+
+```{r}
+ggplot(data = gapminder , mapping=  aes(x=gdpPercap, y = lifeExp)) +
+  geom_point( alpha = .4) + 
+  scale_x_log10() +
+  stat_smooth( method = lm) + 
+  facet_wrap(~continent)+ 
+  xlab("GDP Per Capita")+ 
+  ylab ("Life Expectancy")+
+  ggtitle("Life Expectancy by GDP Per Capita", subtitle = "Faceted by Continet")+ 
+  coord_flip() #flipping the axis 
+
+```
+
+```{r}
+gapminder %>% 
+ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
+  geom_boxplot() # here we can see the box plots, but if we flip its a little easier to read 
+
+gapminder %>% 
+ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
+  geom_boxplot() + 
+  coord_flip() # yes, this is easier to read for sure 
+
+gapminder %>% 
+ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
+  geom_boxplot() + 
+  coord_flip()+
+  theme_minimal() #took out the grey background, classic would remove all of the lines
+
+
+gapminder %>% 
+ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
+  geom_point()+
+  geom_boxplot() + 
+  coord_flip()+
+  theme_minimal() # a bit much, but lets you see a little more on the data, we can change this if we wanted 
+
+gapminder %>% 
+ggplot(data = . , mapping=  aes(x= continent, y = lifeExp)) +
+  geom_point()+
+  geom_boxplot() + 
+  coord_flip()+
+  theme_fivethirtyeight()
+# west andersone themes, you can have plots in the different themes and colors etc. 
+
+
+
+
+
+```
+
