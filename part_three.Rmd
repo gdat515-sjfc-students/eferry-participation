@@ -1,0 +1,62 @@
+---
+title: "Class_Three_Participation"
+output: 
+  flexdashboard::flex_dashboard:
+   orientation: rows
+   vertical_layout: scroll
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(tidyverse)
+library(shiny)
+library(ggExtra)
+library(ggExtra)
+library(tidyverse)
+library(htmltools)
+library(shiny)
+install.packages("shinydashboard")
+
+
+### creates each of the slides in a story board 
+#orientation: rows
+   # vertical_layout: scroll
+#runtime: shiny   
+#three *** makes comentary "Two asterics on each side bold, three asterics anything beneath those becomes 
+
+# you can change the commentary width {data-commentary-datawidth= }
+
+# you can have tabs too where you see stuff inside 
+#value boxes- this is a row layout, with value boxes which accepts icons ( awesome icon )
+
+```
+
+Row {data-width=400}
+-----------------------------------------------------------------------
+
+### Value Box 
+*** Commentary on the side 
+
+
+```{r}
+
+diamonds
+
+```
+
+Row {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
